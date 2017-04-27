@@ -1,4 +1,13 @@
 <resources>
-    <string name="app_name">gmap-3-md</string>
-    <string name="title_activity_gmap3">白丁地图3 Web</string>
+    <string name="app_name">白丁地图</string>
+    <string name="title_activity_gmap3">白丁地图</string>
+
+
+    <string name="action_clear">Clear</string>
+    <string name="action_circle">Draw Circle</string>
+    <string name="action_overlay">Draw Overlay</string>
+    <string name="action_polygon">Draw Polygon</string>
+    <string name="action_traffic">Toggle Traffic</string>
+    <string name="action_cycle_map_type">Cycle Map Type</string>
+
 </resources>

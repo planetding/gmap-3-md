@@ -5,7 +5,7 @@ android {
     buildToolsVersion "25.0.2"
     defaultConfig {
         applicationId "com.example.plane.gmap_3_md"
-        minSdkVersion 15
+        minSdkVersion 14
         targetSdkVersion 22
         versionCode 1
         versionName "1.0"
@@ -25,6 +25,9 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     compile 'com.android.support:appcompat-v7:22.2.1'
+
     compile 'com.google.android.gms:play-services-maps:7.8.0'  //10.2.1
+    compile 'com.google.android.gms:play-services-location:7.8.0'
+    compile 'com.google.android.gms:play-services:7.8.0'
     testCompile 'junit:junit:4.12'
 }
