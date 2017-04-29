@@ -1,5 +1,7 @@
 package org.planetding.gmap_3_md;
 
+import org.planetding.gmap_3_md.MarkerCallback;
+
 import android.location.Location;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -7,6 +9,15 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import android.view.View;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+import android.graphics.drawable.Drawable;
+
+import android.view.SurfaceHolder.Callback;
 
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -16,6 +27,8 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+// import com.google.maps.Map;
+// import com.google.maps;
 
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.UiSettings;
@@ -35,6 +48,8 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -47,7 +62,8 @@ import android.util.Log;
 
 import android.widget.Toast;
 
-
+// import com.bumptech.glide.Glide;
+// import com.bumptech.glide.MemoryCategory;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -59,8 +75,8 @@ import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 
 
+import com.squareup.picasso.Picasso;
 
-/** added by MD */
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -172,8 +188,8 @@ public class gmap3Activity extends FragmentActivity {
 
 /**originally extends: FragmentActivity, changed to AppCompatActivity, and the missing title bar showed up! MD 4-25-17 */
 
-public class gmap3Activity extends AppCompatActivity implements OnMapReadyCallback
-      //  ConnectionCallbacks
+public class gmap3Activity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.InfoWindowAdapter
+        //  ConnectionCallbacks
         // , OnConnectionFailedListener
     {
 
@@ -206,27 +222,36 @@ public class gmap3Activity extends AppCompatActivity implements OnMapReadyCallba
         mMap = googleMap;
 
         // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
+        LatLng iSIG = new LatLng(31.296346, 121.506195);
+        mMap.addMarker(new MarkerOptions().position(iSIG).title("Welcome to iSIG"));
+
       //  mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+
+       // Location mLastLocation = mMap.getMyLocation();
 
         if (mLastLocation !=null) {
                mLat = mLastLocation.getLatitude();
                mLng = mLastLocation.getLongitude();
         }
-        else {
-            mLat = 20;
-            mLng = 20;
+        else { //center of China
+            mLat = 35.8617;
+            mLng = 104.1954;
         }
 
      //   LatLng currentLL = new LatLng(String.valueOf(mLastLocation.getLatitude(),String.valueOf(mLastLocation.getLatitude());
         LatLng currentLL = new LatLng(mLat,mLng);
 
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(currentLL));
+   //     mMap.moveCamera(CameraUpdateFactory.newLatLng(currentLL));
+        float zoomLevel = 3; //This goes up to 21
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLL, zoomLevel));
+
+       // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(Latitude,Longitude), zoomLevel));
 
         //added by MD to add the center map button to my current location, and add a blue dot to my current location
         mMap.setMyLocationEnabled(true);
         mMap.getUiSettings().setMyLocationButtonEnabled(true);
+
+        mMap.setInfoWindowAdapter(this);
 
        // mMap.moveCamera(CameraUpdateFactory.newLatLng( ));
     }
@@ -352,26 +377,14 @@ public class gmap3Activity extends AppCompatActivity implements OnMapReadyCallba
     }
 
      */
-    /**
-     * Runs when a GoogleApiClient object successfully connects.
 
-    @Override
-    public void onConnected(Bundle connectionHint) {
-        // Provides a simple way of getting a device's location and is well suited for
-        // applications that do not require a fine-grained location and that do not need location
-        // updates. Gets the best and most recent location currently available, which may be null
-        // in rare cases when a location is not available.
-        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-      /**  if (mLastLocation != null) {
-            mLatitudeText.setText(String.format("%s: %f", mLatitudeLabel,
-                    mLastLocation.getLatitude()));
-            mLongitudeText.setText(String.format("%s: %f", mLongitudeLabel,
-                    mLastLocation.getLongitude()));
-        } else {
-            // Toast.makeText(this, R.string.no_location_detected, Toast.LENGTH_LONG).show();
-        }
+     // Runs when a GoogleApiClient object successfully connects.
 
-    }
+        /**
+     public void onConnected(Bundle bundle) {
+     Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+     }
+
 
     @Override
     public void onConnectionSuspended(int i) {
@@ -422,6 +435,21 @@ public class gmap3Activity extends AppCompatActivity implements OnMapReadyCallba
             }
         }).start();
     }
+/**
+        private void centerMapOnMyLocation() {
+
+            map.setMyLocationEnabled(true);
+
+            mLastLocation = map.getMyLocation();
+
+            if (mLastLocation != null) {
+                myLocation = new LatLng(mLastLocation.getLatitude(),
+                        mLastLocation.getLongitude());
+            }
+            map.animateCamera(CameraUpdateFactory.newLatLngZoom(myLocation,
+                    Constants.MAP_ZOOM));
+        }
+    **/
 
     protected void retrieveAndAddCities() throws IOException {
         HttpURLConnection conn = null;
@@ -469,8 +497,10 @@ public class gmap3Activity extends AppCompatActivity implements OnMapReadyCallba
             map.addMarker(new MarkerOptions()
 //                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW))
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.en))
-                    .title("<a href='" + jsonObj.getString("name" )+ "'>" + "video" + "</a>" )
-                    .snippet(Integer.toString(jsonObj.getInt("population")))
+         //not working           .title("<a href='" + jsonObj.getString("name" )+ "'>" + "video" + "</a>" )
+                    .title(jsonObj.getString("name" ) )
+                  //    original code, also working      .snippet(Integer.toString(jsonObj.getInt("population")))
+                    .snippet(jsonObj.getString("population"))
                     .draggable(true)
         //            .snippet(jsonObj.getString("myurl"))
                     .position(new LatLng(
@@ -479,9 +509,10 @@ public class gmap3Activity extends AppCompatActivity implements OnMapReadyCallba
                     ))
             );
         }
+
     }
 
-        /** these are about menu added
+        /** these add menu MD
          * **/
 
         private void toggleTraffic() {
@@ -547,6 +578,87 @@ public class gmap3Activity extends AppCompatActivity implements OnMapReadyCallba
             }
 
 
+/** added to do customer info window for marker, To create Custom InfoWindow for Google Maps Android API v2:
+ Make your Activity implements GoogleMap.InfoWindowAdapter.
+ Override getInfoWindow(Marker marker) and getInfoContents(Marker marker).
+ The API will first call getInfoWindow(Marker) and if null is returned, it will then call getInfoContents(Marker).
+ If this also returns null, then the default info window will be used.
+ The first of these (getInfoWindow()) allows you to provide a view that will be used for the entire info window.
+ The second of these (getInfoContents()) allows you to just customize the contents of the window but still
+ keep the default info window frame and background.
+ also add in onMapReady method:         mMap.setInfoWindowAdapter(this);
+**/
+        @Override
+        public View getInfoWindow(Marker marker) {
+            return null;
+            // return prepareInfoView(marker);
+        }
 
+        @Override
+        public View getInfoContents(Marker marker) {
+            //return null;
+
+            return prepareInfoView(marker);
+
+        }
+
+        private View prepareInfoView(Marker marker){
+
+
+            //prepare InfoView programmatically
+            LinearLayout infoView = new LinearLayout(gmap3Activity.this);
+            LinearLayout.LayoutParams infoViewParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            infoView.setOrientation(LinearLayout.HORIZONTAL);
+            infoView.setLayoutParams(infoViewParams);
+
+            ImageView infoImageView = new ImageView(gmap3Activity.this);
+            //Drawable drawable = getResources().getDrawable(R.mipmap.ic_launcher);
+
+            // the next few lines are added by MD to access external photo and insert them into the customerized infoWindow
+
+            String currentUrl = marker.getTitle();
+
+           ImageView imageView = (ImageView) findViewById(R.id.imageView);
+
+     /** can also use Glide, but even slower than Picasso **/
+            if (imageView != null) {
+                Picasso.with(this)
+                        .load(currentUrl)
+                        .placeholder(R.drawable.en)
+                        .resize(200, 200) // this can also be center cropped, scaled, etc, and .fit()
+                        .into(imageView, new MarkerCallback(marker));
+            }
+
+            Drawable drawable = imageView.getDrawable(); // original code from web, which is ued to get local resources: getResources().getDrawable(R.drawable.en );  original parameter in getDrawable(): android.R.drawable.ic_dialog_map
+
+            infoImageView.setImageDrawable(drawable);
+
+            infoView.addView(infoImageView);
+
+
+            LinearLayout subInfoView = new LinearLayout(gmap3Activity.this);
+            LinearLayout.LayoutParams subInfoViewParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            subInfoView.setOrientation(LinearLayout.VERTICAL);
+            subInfoView.setLayoutParams(subInfoViewParams);
+
+            TextView subInfo0 = new TextView(gmap3Activity.this);
+            subInfo0.setText(marker.getTitle());
+            //original code       subInfoLat.setText("Lat: " + marker.getPosition().latitude);
+
+            TextView subInfo1 = new TextView(gmap3Activity.this);
+            subInfo1.setText(marker.getSnippet()); // MD added
+          //original code  subInfoLnt.setText("Lnt: " + marker.getPosition().longitude);
+
+       //MD      subInfoView.addView(subInfo0);
+            subInfoView.addView(subInfo1);
+
+            infoView.addView(subInfoView);
+
+
+            return infoView;
+        }
 }
 /**/
+
